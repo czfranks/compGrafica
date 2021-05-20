@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script type='module'>  
+        import * as THREE from 'https://cdn.skypack.dev/three';
+               
+        var sol = new THREE.Mesh( new THREE.BoxGeometry( 5, 5, 5 ), new THREE.MeshPhongMaterial( {color:0xFCFF33}) );
+        var tierra = new THREE.Mesh( new THREE.BoxGeometry( 4, 4, 4 ), new THREE.MeshPhongMaterial( {color:0x8E5229}) );
+        var luna = new THREE.Mesh( new THREE.BoxGeometry( 2, 2, 2 ), new THREE.MeshPhongMaterial( {color:0x51CEDF}) );
+        tierra.position.x = sol.position.z
+        tierra.position.y = sol.position.y;
+        luna.position.x = 25//tierra.position.x
+        ;
+                
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight,1,500);
+        camera.position.z = 100;
+        camera.position.y = 10;      
+      
+        var scene = new THREE.Scene();
+        scene.backgroundColor = new THREE.Color(0xffffff);
+        scene.add(sol);     
+        scene.add(tierra);   
+        scene.add(luna);   
+
+        const light = new THREE.HemisphereLight(0xB1E1FF, 0x000000, 1);
+        scene.add(light);
+        
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+       
+        // Defina aqui las matrices de transofmracion
+        ////////////////////////////////////////////////////////////////
+
+        /* TRANSFORMACIONES DE SOL */
+        
+        
+        var o = 0.1;
+        const rotate_sol = new THREE.Matrix4();
+        rotate_sol.set( Math.cos(o), -Math.sin(o), 0, 0,
+                        Math.sin(o),  Math.cos(o), 0, 0,
+                        0,        0,               1, 0,
+                        0,        0,               0, 1    );
+        var transformacion_sol = rotate_sol;
+        
+        /* TRANSFORMACIONES TIERRA */
+        var R = 20; //radio a sol
+        console.log(sol.position.x);
+        console.log(tierra.position.x);
+        const translacion_tierra = new THREE.Matrix4();
+        translacion_tierra.set( 1, 0, 0, Math.cos(0.1),
+                          0, 1, 0, Math.sin(0.1),
+                          0, 0, 1, 0,
+                          0, 0, 0, 1);
+        
+        var ot = 0.2;
+        const rotate_tierra = new THREE.Matrix4();
+        rotate_tierra.set( Math.cos(ot), -Math.sin(ot), 0, 0,
+                           Math.sin(ot),  Math.cos(ot), 0, 0,
+                           0,         0,                1, 0,
+                           0,         0,                0, 1    );
+        var transformacion_tierra = translacion_tierra.multiply(rotate_tierra);
+
+        /* TRANSFORMACIONES LUNA */
+        const translacion_luna = new THREE.Matrix4();
+        translacion_luna.set( 1, 0, 0, 4*Math.cos(1),
+                          0, 1, 0, 4*Math.sin(1),
+                          0, 0, 1, 0,
+                          0, 0, 0, 1);
+
+        var ol = 0.2;
+        const rotate_luna = new THREE.Matrix4();
+        rotate_luna.set( Math.cos(ol), -Math.sin(ol), 0, 0,
+                         Math.sin(ol),  Math.cos(ol), 0, 0,
+                         0,         0,                1, 0,
+                         0,         0,                0, 1    );
+        var transformacion_luna = translacion_luna.multiply(rotate_luna);
+
+        ////////////////////////////////////////////////////////////////
+        
+
+        var animate = function(){
+            requestAnimationFrame(animate);   
+              
+            sol.geometry.applyMatrix4(    transformacion_sol    );
+            tierra.geometry.applyMatrix4( transformacion_tierra );
+            luna.geometry.applyMatrix4(   transformacion_luna   );
+
+            renderer.render( scene, camera );
+        }
+        animate();
+    </script>    
+
+</body>
+</html>
